@@ -42,9 +42,9 @@ export class HttpClient {
             method: 'post',
             mode: 'cors',
             headers: {
-                "Content-Type": this.contentType
+                "Content-Type": this.#_contentType
             },
-            body: this.body
+            body: this.#_body
         }
         return this.#send()
         
@@ -68,7 +68,7 @@ export class HttpClient {
             headers: {
                 "Content-Type": this.contentType
             },
-            body: this.body
+            body: this.#_body
         }
         return this.#send()        
     }

@@ -49,7 +49,7 @@ export class Login {
     send() {
         
         const value = this.#form.value
-
+        //console.log(JSON.stringify(value))
         this.#service.signin(value)
             .pipe(
                 take(1)

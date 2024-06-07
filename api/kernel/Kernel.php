@@ -33,6 +33,7 @@ class Kernel {
 
     private Request $request;
 
+    //Constructeur
     private function __construct() {
         $this->setRouter();
         // Set environment vars
