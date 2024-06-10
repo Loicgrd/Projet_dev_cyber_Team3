@@ -16,6 +16,8 @@ export function requiredValidator(control) {
     if (control.value === undefined) {
         return {required: true}
     }
+
+    control.value = control.value.replace(/[^a-z0-9áéíóúñü \.,_-]/gim,""); // Sanitization
     return (control.value.trim().length === 0) ? {required: true} : null
 }
 
