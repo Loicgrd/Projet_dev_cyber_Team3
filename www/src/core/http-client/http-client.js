@@ -19,7 +19,7 @@ export class HttpClient {
             method: 'get',
             mode: 'cors',
             headers: {
-                "Content-Type": this.contentType
+                "Content-Type": this.#_contentType
             }
         }
 
@@ -57,16 +57,16 @@ export class HttpClient {
      * @returns Observable<any>
      */
     put(uri, body) {
-        this.method = 'put'
-        this.uri = uri
+        this.#_method = 'put'
+        this.#_uri = uri
         
-        this.body = JSON.stringify(body)
+        this.#_body = JSON.stringify(body)
 
-        this.fetchOptions = {
+        this.#_fetchOptions = {
             method: 'put',
             mode: 'cors',
             headers: {
-                "Content-Type": this.contentType
+                "Content-Type": this.#_contentType
             },
             body: this.#_body
         }
@@ -82,7 +82,7 @@ export class HttpClient {
             if (response.ok) {
                 return response.json()
             }
-            throw new Error(`Something went wrong calling ${this.method.toUpperCase()} ${this.uri} (${JSON.stringify(response)})`)
+            throw new Error(`Something went wrong calling ${this.#_method.toUpperCase()} ${this.#_uri} (${JSON.stringify(response)})`)
         })
         .then((responseJson) => responseJson)
 
