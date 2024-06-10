@@ -29,11 +29,14 @@ class UserRepository {
             JOIN user_has_role uhr ON u.id = uhr.user_id 
             JOIN role r ON uhr.role_id = r.id
             JOIN account a ON u.id = a.user_id 
-            WHERE login = '$username' AND password = '$password';";
+            WHERE login = :username AND password = :password;";
         
-        $pdoStatement = $this->dbInstance->query($sqlQuery);
+        $pdoStatement = $this->dbInstance->prepare($sqlQuery);
 
         if ($pdoStatement) {
+            $pdoStatement->execute(array(
+                ':username' => $username,
+                ':password' => $password));
             $result = $pdoStatement->fetch(\PDO::FETCH_OBJ);
             if ($result) {
                 $user = new UserEntity();
