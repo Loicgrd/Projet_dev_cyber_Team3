@@ -56,7 +56,9 @@ export class Login {
             )
             .subscribe({
                 next: (response) => {
-                    
+                    if (response.data.token) {
+                        this.#service.storeToken(response.data.token)
+                    }
                 },
                 error: (error) => {
                     /**

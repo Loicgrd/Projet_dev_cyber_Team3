@@ -23,4 +23,8 @@ export class LoginService {
             value
         )
     }
+
+    storeToken(token) {
+        localStorage.setItem('jwt', token)
+    }
 }

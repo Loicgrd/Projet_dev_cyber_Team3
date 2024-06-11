@@ -15,8 +15,9 @@ use Aelion\Http\Response\Response;
 use Aelion\Http\Response\HttpResponseStatus;
 use Aelion\Http\Response\JsonResponse;
 use Aelion\Registry\Registrable;
-use Firebase\JWT\JWT;
 
+// Autres inclusions et logique de l'application
+use Firebase\JWT\JWT;
 class SigninService implements Registrable {
 
     private $repository = null;
@@ -38,9 +39,13 @@ class SigninService implements Registrable {
         return new SigninService($request);
     }
 
+    /**
+     * Generate JSON Web Token
+    */ 
     protected function generateJWT(array $payload, string $secretKey): string{
         return JWT::encode($payload, $secretKey);
     }
+    
 
     public function signin(): Response {
         try {
@@ -97,6 +102,6 @@ class SigninService implements Registrable {
             $response->setPayload($content);
             return $response;       
         }
-       
+    
     }
 }
