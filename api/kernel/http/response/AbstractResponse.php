@@ -41,6 +41,4 @@ abstract class AbstractResponse implements Response {
     public function send(): void {
         header($_SERVER['SERVER_PROTOCOL'] . ' ' . $this->statusResponseHeader[0] . ' ' . $this->statusResponseHeader[1]);
     }
-
-    abstract protected function generateJWT(array $payload, string $secretKey): string;
 }

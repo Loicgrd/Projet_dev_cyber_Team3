@@ -6,7 +6,7 @@ export class HttpClient {
     #_contentType = 'application/json'
     #_body = ''
     #_fetchOptions = {}
-
+    #_token = localStorage.getItem('token');
     /**
      * 
      * @param {string} uri 
@@ -19,10 +19,12 @@ export class HttpClient {
             method: 'get',
             mode: 'cors',
             headers: {
-                "Content-Type": this.#_contentType
+                "Content-Type": this.#_contentType,
             }
         }
-
+        if (this.#_token) {
+            this.#_fetchOptions.headers["Authorization"] = `Bearer ${this.#_token}`;
+        }
         return this.#send()
 
     }
@@ -42,9 +44,12 @@ export class HttpClient {
             method: 'post',
             mode: 'cors',
             headers: {
-                "Content-Type": this.#_contentType
+                "Content-Type": this.#_contentType,
             },
             body: this.#_body
+        }
+        if (this.#_token) {
+            this.#_fetchOptions.headers["Authorization"] = `Bearer ${this.#_token}`;
         }
         return this.#send()
         
@@ -66,9 +71,12 @@ export class HttpClient {
             method: 'put',
             mode: 'cors',
             headers: {
-                "Content-Type": this.#_contentType
+                "Content-Type": this.#_contentType,
             },
             body: this.#_body
+        }
+        if (this.#_token) {
+            this.#_fetchOptions.headers["Authorization"] = `Bearer ${this.#_token}`;
         }
         return this.#send()        
     }
