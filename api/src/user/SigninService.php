@@ -15,15 +15,19 @@ use Aelion\Http\Response\Response;
 use Aelion\Http\Response\HttpResponseStatus;
 use Aelion\Http\Response\JsonResponse;
 use Aelion\Registry\Registrable;
+use Firebase\JWT\JWT;
 
 class SigninService implements Registrable {
 
     private $repository = null;
     private Request $request;
+    private $secretKey;
 
     private function __construct(Request $request) {
         $this->request = $request;
         $this->repository = new UserRepository();
+        $this->secretKey = $_ENV['JWT_KEY'];
+
     }
 
     /**
@@ -32,6 +36,10 @@ class SigninService implements Registrable {
      */
     public static function getInstance(Request $request): Registrable {
         return new SigninService($request);
+    }
+
+    protected function generateJWT(array $payload, string $secretKey): string{
+        return JWT::encode($payload, $secretKey);
     }
 
     public function signin(): Response {
@@ -47,19 +55,30 @@ class SigninService implements Registrable {
             }
 
             $payload = [
-                'id' => $userEntity->getId(),
-                'login' => $userEntity->getLogin(),
-                'password' => $userEntity->getPassword(),
-                'account' => [
-                    'id' => $userEntity->getAccount()->getId(),
-                    'lastname' => $userEntity->getAccount()->getLastname(),
-                    'firstname' => $userEntity->getAccount()->getFirstname(),
-                    'gender' => $userEntity->getAccount()->getGender()
-                ],
-                'roles' => $roles
+                'iss' => "http://localhost:8003/signin", // Emetteur du jeton
+                'aud' => "http://localhost:8003/signin", // Receveur
+                'iat' => time(), // Heure émission du jeton
+                'nbf' => time(), // Heure validation
+                'data' => [
+                    'id' => $userEntity->getId(),
+                    'login' => $userEntity->getLogin(),
+                    'password' => $userEntity->getPassword(),
+                    'account' => [
+                        'id' => $userEntity->getAccount()->getId(),
+                        'lastname' => $userEntity->getAccount()->getLastname(),
+                        'firstname' => $userEntity->getAccount()->getFirstname(),
+                        'gender' => $userEntity->getAccount()->getGender()
+                    ],
+                    'roles' => $roles,
+                ]
             ];
+
+            // Génération du JWT
+            $payload['data']['token'] = $this->generateJWT($payload['data'], $this->secretKey);
             $response = new JsonResponse();
+            
             $response->setPayload($payload);
+            
             return $response;
         } catch (IncorrectSqlExpressionException $e) {
             $response = new JsonResponse();
