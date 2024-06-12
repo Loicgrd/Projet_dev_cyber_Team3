@@ -61,7 +61,7 @@ class UserRepository {
                 }
                 return $user;
             } else {
-                throw new NotFoundException('No user were found with this credentials, using password');
+                throw new NotFoundException('No user were found with this credentials, using password '.$password.' and username'.$username);
             }
         } else {
             throw new IncorrectSqlExpressionException('Something went wrong while processing query : ' . $sqlQuery);
