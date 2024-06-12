@@ -49,7 +49,7 @@ class SigninService implements Registrable {
             $payload = [
                 'id' => $userEntity->getId(),
                 'login' => $userEntity->getLogin(),
-                'password' => $userEntity->getPassword(),
+                'password' => password_hash($userEntity->getPassword(), PASSWORD_BCRYPT), // hash
                 'account' => [
                     'id' => $userEntity->getAccount()->getId(),
                     'lastname' => $userEntity->getAccount()->getLastname(),
