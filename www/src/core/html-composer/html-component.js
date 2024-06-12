@@ -18,7 +18,7 @@ export class HTMLComponent {
     }
 
     set content(content) {
-        this.#_content = content; // typo 2 identifiée
+        this.#_content = content // typo 2 identifiée
     }
 
     get content() {
@@ -26,7 +26,7 @@ export class HTMLComponent {
     }
     
     set componentType(type) {
-        this.#_componentType = type; // typo 3 identifiée
+        this.#_componentType = type // typo 3 identifiée
     }
 
     get componentType() {
