@@ -80,16 +80,20 @@ for i in range (len(exploit_name)):
     response = requests.post(url_back, data=payloads[i])
     # Récupération de la réponse
     response_text = response.text
+    print(response_text)
     # Test sur la réponse
     if response.status_code == 200:
         if "XSS" in exploit_name[i]: #Condition sur attaque xss
             print(f"Requete bien effectué pour : {exploit_name[i]}")
-            if login_list[i] or password_list[i] in response_text:
-                resultat = "success XSS attack"
-                print(resultat+ "\n")
+            if "<" in response_text:
+                if ">" in response_text:
+                    if "/" in response_text:
+                        resultat = "success XSS attack"
+                        print(resultat+ "\n")
             else:
                 resultat = "failed XSS attack"
                 print(resultat+ "\n")
+                print(login_list[i])
         else:
             if error_message in response_text:
                 resultat = "Access Denied"
@@ -102,5 +106,6 @@ for i in range (len(exploit_name)):
         print(resultat +"\n")
     writer.writerow([exploit_name[i],resultat, login_list[i], password_list[i]]) #Ecriture fichier csv
 file.close()
+
 
 
