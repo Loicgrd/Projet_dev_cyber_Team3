@@ -21,6 +21,7 @@ class UserRepository {
     }
 
     public function findByLoginAndPassword(string $username, string $password): ?UserEntity {
+
         $sqlQuery = "SELECT 
             u.id userid, u.login login, u.password password, r.id roleid, r.role role, 
             a.id accountid, a.lastname lastname, a.firstname firstname, a.gender gender 
@@ -29,15 +30,26 @@ class UserRepository {
             JOIN user_has_role uhr ON u.id = uhr.user_id 
             JOIN role r ON uhr.role_id = r.id
             JOIN account a ON u.id = a.user_id 
-            WHERE login = :username AND password = :password;";
+            WHERE login = :username AND password = :pass;";
         
-        $pdoStatement = $this->dbInstance->prepare($sqlQuery);
+        /*$sqlQuery = "SELECT 
+            u.id userid, u.login login, u.password password, r.id roleid, r.role role, 
+            a.id accountid, a.lastname lastname, a.firstname firstname, a.gender gender 
+            FROM 
+            user u 
+            JOIN user_has_role uhr ON u.id = uhr.user_id 
+            JOIN role r ON uhr.role_id = r.id
+            JOIN account a ON u.id = a.user_id 
+            WHERE login = '$username' AND password = '$password';";*/
+
+        $params = [':username'=> $username, ':pass'=> $password];
+
+        $pdoStatement = $this->useContext($this->dbInstance, $sqlQuery, $params, true);
+        # $pdoStatement = $this->useContext($this->dbInstance, $sqlQuery, $params, false);
 
         if ($pdoStatement) {
-            $pdoStatement->execute(array(
-                ':username' => $username,
-                ':password' => $password));
             $result = $pdoStatement->fetch(\PDO::FETCH_OBJ);
+
             if ($result) {
                 $user = new UserEntity();
                 $user->setId($result->userid);
@@ -70,5 +82,14 @@ class UserRepository {
             throw new IncorrectSqlExpressionException('Something went wrong while processing query : ' . $sqlQuery);
         }
         
+    }
+    public function useContext($conn, $query, $params = [], $usePrepared = true){
+        if ($usePrepared) {
+            $contextPrepared = new Context(new UsePreparedRequest());
+            return $contextPrepared->useStrategy($conn, $query, $params);
+        } else {
+            $context = new Context(new UseRequest());
+            return $context->setStrategy($conn, $query);
+        }
     }
 }
