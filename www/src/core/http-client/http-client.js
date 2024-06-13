@@ -20,10 +20,8 @@ export class HttpClient {
             mode: 'cors',
             headers: {
                 "Content-Type": this.#_contentType,
+                "Authorization" : `Bearer ${this.#_token}`
             }
-        }
-        if (this.#_token) {
-            this.#_fetchOptions.headers["Authorization"] = `Bearer ${this.#_token}`;
         }
         return this.#send()
 
@@ -72,11 +70,9 @@ export class HttpClient {
             mode: 'cors',
             headers: {
                 "Content-Type": this.#_contentType,
+                "Authorization" : `Bearer ${this.#_token}`
             },
             body: this.#_body
-        }
-        if (this.#_token) {
-            this.#_fetchOptions.headers["Authorization"] = `Bearer ${this.#_token}`;
         }
         return this.#send()        
     }

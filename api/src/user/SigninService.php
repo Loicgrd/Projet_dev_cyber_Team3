@@ -43,7 +43,7 @@ class SigninService implements Registrable {
      * Generate JSON Web Token
     */ 
     protected function generateJWT(array $payload, string $secretKey): string{
-        return JWT::encode($payload, $secretKey);
+        return JWT::encode($payload, $secretKey, 'HS256');
     }
     
 
