@@ -2,9 +2,9 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from bs4 import BeautifulSoup
-import time
-import datetime as dt
 import csv
+
+'''form_test.py permet de tester des injections sql et attaques XSS'''
 
 def find_form(url):
     """Fonction permettant d'enregistrer le formulaire en executant dans un navigateur"""
@@ -34,7 +34,6 @@ def find_user_pswd_button(url, input_name = 'data-rel', type_login = 'text', typ
         print("Error to find button")
     return str(user_name), str(pswd_name), str(button_id)
 
-
 '''======Données spécifique formulaire======'''
 url = 'http://localhost:5173/' #URL du formulaire
 url_back = 'http://localhost:8003/signin' #URL du back
@@ -57,7 +56,7 @@ password_list = ["super_admin", "false_password",
 
 #Récupère le formulaire
 form = find_form(url)
-#print(form)
+print(form)
 
 #Initialisation des payloads
 user_name, pswd_name, button_id = find_user_pswd_button(url)
