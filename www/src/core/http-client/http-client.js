@@ -82,6 +82,9 @@ export class HttpClient {
             if (response.ok) {
                 return response.json()
             }
+            else if(response.status === 404) {
+                alert('User not found !')
+            }
             throw new Error(`Something went wrong calling ${this.#_method.toUpperCase()} ${this.#_uri} (${JSON.stringify(response)})`)
         })
         .then((responseJson) => responseJson)
