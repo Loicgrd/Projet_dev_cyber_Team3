@@ -12,6 +12,8 @@ use Aelion\Dbal\DBAL;
 use Aelion\Dbal\Exception\NotFoundException;
 use Aelion\Dbal\Exception\IncorrectSqlExpressionException;
 use Api\Account\AccountEntity;
+use Api\User\UsePreparedRequest;
+use Api\User\UseRequest;
 
 class UserRepository {
     private \PDO $dbInstance;
