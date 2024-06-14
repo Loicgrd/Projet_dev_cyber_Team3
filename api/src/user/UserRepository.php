@@ -20,7 +20,7 @@ class UserRepository {
         $this->dbInstance = DBAL::getConnection();
     }
 
-    public function findByLoginAndPassword(string $username, string $password): ?UserEntity {
+    public function findByLogin(string $username): ?UserEntity {
 
         $sqlQuery = "SELECT 
             u.id userid, u.login login, u.password password, r.id roleid, r.role role, 
@@ -30,7 +30,7 @@ class UserRepository {
             JOIN user_has_role uhr ON u.id = uhr.user_id 
             JOIN role r ON uhr.role_id = r.id
             JOIN account a ON u.id = a.user_id 
-            WHERE login = :username AND password = :pass;";
+            WHERE login = :username";
         
         /*$sqlQuery = "SELECT 
             u.id userid, u.login login, u.password password, r.id roleid, r.role role, 
@@ -40,9 +40,9 @@ class UserRepository {
             JOIN user_has_role uhr ON u.id = uhr.user_id 
             JOIN role r ON uhr.role_id = r.id
             JOIN account a ON u.id = a.user_id 
-            WHERE login = '$username' AND password = '$password';";*/
+            WHERE login = '$username';";*/
 
-        $params = [':username'=> $username, ':pass'=> $password];
+        $params = [':username'=> $username];
 
         $pdoStatement = $this->useContext($this->dbInstance, $sqlQuery, $params, true);
         # $pdoStatement = $this->useContext($this->dbInstance, $sqlQuery, $params, false);
