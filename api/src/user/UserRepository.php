@@ -84,12 +84,10 @@ class UserRepository {
         
     }
     public function useContext($conn, $query, $params = [], $usePrepared = true){
-        if ($usePrepared) {
-            $contextPrepared = new Context(new UsePreparedRequest());
-            return $contextPrepared->useStrategy($conn, $query, $params);
-        } else {
-            $context = new Context(new UseRequest());
-            return $context->setStrategy($conn, $query);
+        $context = new Context(new UsePreparedRequest());
+        if (!$usePrepared) {
+            $context->setStrategy(new UseRequest());
         }
+        return $context->useStrategy($conn, $query, $params);
     }
 }
