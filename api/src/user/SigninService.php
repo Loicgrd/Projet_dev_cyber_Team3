@@ -36,31 +36,43 @@ class SigninService implements Registrable {
 
     public function signin(): Response {
         try {
-            $userEntity = $this->repository->findByLoginAndPassword($this->request->get('username'), $this->request->get('userpassword'));
-            $roles = [];
-            foreach ($userEntity->getRoles() as $role) {
-                $userRole = [
-                    'id' => $role->getId(),
-                    'role' => $role->getRole()
-                ];
-                array_push($roles, $userRole);
-            }
+            $username = $this->request->get('username');
+            $userpassword = $this->request->get('userpassword');
 
-            $payload = [
-                'id' => $userEntity->getId(),
-                'login' => $userEntity->getLogin(),
-                'password' => password_hash($userEntity->getPassword(), PASSWORD_BCRYPT), // hash
-                'account' => [
-                    'id' => $userEntity->getAccount()->getId(),
-                    'lastname' => $userEntity->getAccount()->getLastname(),
-                    'firstname' => $userEntity->getAccount()->getFirstname(),
-                    'gender' => $userEntity->getAccount()->getGender()
-                ],
-                'roles' => $roles
-            ];
-            $response = new JsonResponse();
-            $response->setPayload($payload);
-            return $response;
+            $userEntity = $this->repository->findByLogin($username);
+
+            if ($userEntity && password_verify($userpassword, $userEntity->getPassword())) {
+                $roles = [];
+                foreach ($userEntity->getRoles() as $role) {
+                    $userRole = [
+                        'id' => $role->getId(),
+                        'role' => $role->getRole()
+                    ];
+                    array_push($roles, $userRole);
+                }
+
+                $payload = [
+                    'id' => $userEntity->getId(),
+                    'login' => $userEntity->getLogin(),
+                    'account' => [
+                        'id' => $userEntity->getAccount()->getId(),
+                        'lastname' => $userEntity->getAccount()->getLastname(),
+                        'firstname' => $userEntity->getAccount()->getFirstname(),
+                        'gender' => $userEntity->getAccount()->getGender()
+                    ],
+                    'roles' => $roles
+                ];
+                $response = new JsonResponse();
+                $response->setPayload($payload);
+                return $response;
+            } else {
+                // Invalid credentials
+                $response = new JsonResponse();
+                $response->setStatus(HttpResponseStatus::Unauthorized);
+                $content = ['message' => 'Invalid credentials'];
+                $response->setPayload($content);
+                return $response;
+            }
         } catch (IncorrectSqlExpressionException $e) {
             $response = new JsonResponse();
             $response->setStatus(HttpResponseStatus::InternalServerError);
@@ -78,6 +90,5 @@ class SigninService implements Registrable {
             $response->setPayload($content);
             return $response;       
         }
-       
     }
 }
