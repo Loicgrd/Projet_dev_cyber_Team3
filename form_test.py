@@ -87,9 +87,8 @@ for i in range (len(exploit_name)):
             print(f"Requete bien effectué pour : {exploit_name[i]}")
             if "<" in response_text:
                 if ">" in response_text:
-                    if "/" in response_text:
-                        resultat = "success XSS attack"
-                        print(resultat+ "\n")
+                    resultat = "success XSS attack"
+                    print(resultat+ "\n")
             else:
                 resultat = "failed XSS attack"
                 print(resultat+ "\n")
