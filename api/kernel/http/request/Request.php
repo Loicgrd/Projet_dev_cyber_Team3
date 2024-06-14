@@ -18,6 +18,7 @@ use Aelion\Http\Request\Exception\NoSuchFileException;
 use Aelion\Http\Response\Response;
 use Aelion\Router\TargetParser;
 use Aelion\Router\ParsedRoute;
+use Aelion\Http\Request\SanitizeData;
 
 final class Request {
     private Kernel $kernel;
@@ -50,7 +51,8 @@ final class Request {
     }
 
     public function set(string $key, string $value): void {
-        $this->datas[$key] = $value;
+        $valueSanitized = $this->sanitizeValues($value);
+        $this->datas[$key] = $valueSanitized;
     }
 
     public function getPayload(): array {
@@ -100,5 +102,10 @@ final class Request {
     private function setCorsHeaders() {
         header('Access-Control-Allow-Origin: *');
         header('Access-Control-Allow-Headers: Origin, Content-Type');
+    }
+
+    private function sanitizeValues($value): string {
+        $sanitizeData = new SanitizeData();
+        return $sanitizeData->sanitizeValue($value);
     }
 }
