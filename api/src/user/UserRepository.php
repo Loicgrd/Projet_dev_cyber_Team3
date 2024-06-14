@@ -12,6 +12,8 @@ use Aelion\Dbal\DBAL;
 use Aelion\Dbal\Exception\NotFoundException;
 use Aelion\Dbal\Exception\IncorrectSqlExpressionException;
 use Api\Account\AccountEntity;
+use Api\User\UsePreparedRequest;
+use Api\User\UseRequest;
 
 class UserRepository {
     private \PDO $dbInstance;
@@ -20,7 +22,7 @@ class UserRepository {
         $this->dbInstance = DBAL::getConnection();
     }
 
-    public function findByLoginAndPassword(string $username, string $password): ?UserEntity {
+    public function findByLogin(string $username): ?UserEntity {
         $sqlQuery = "SELECT 
             u.id userid, u.login login, u.password password, r.id roleid, r.role role, 
             a.id accountid, a.lastname lastname, a.firstname firstname, a.gender gender 
@@ -29,12 +31,26 @@ class UserRepository {
             JOIN user_has_role uhr ON u.id = uhr.user_id 
             JOIN role r ON uhr.role_id = r.id
             JOIN account a ON u.id = a.user_id 
-            WHERE login = '$username' AND password = '$password';";
+            WHERE u.login = :username";
         
-        $pdoStatement = $this->dbInstance->query($sqlQuery);
+        /*$sqlQuery = "SELECT 
+            u.id userid, u.login login, u.password password, r.id roleid, r.role role, 
+            a.id accountid, a.lastname lastname, a.firstname firstname, a.gender gender 
+            FROM 
+            user u 
+            JOIN user_has_role uhr ON u.id = uhr.user_id 
+            JOIN role r ON uhr.role_id = r.id
+            JOIN account a ON u.id = a.user_id 
+            WHERE u.login = '$username';";*/
+
+        $params = [':username'=> $username];
+
+        $pdoStatement = $this->useContext($this->dbInstance, $sqlQuery, $params, true);
+        # $pdoStatement = $this->useContext($this->dbInstance, $sqlQuery, $params, false);
 
         if ($pdoStatement) {
             $result = $pdoStatement->fetch(\PDO::FETCH_OBJ);
+
             if ($result) {
                 $user = new UserEntity();
                 $user->setId($result->userid);
@@ -52,20 +68,20 @@ class UserRepository {
                 $account->setFirstname($result->firstname);
                 $account->setGender($result->gender);
                 $user->setAccount($account);
-                
-                while ($result = $pdoStatement->fetch(\PDO::FETCH_OBJ)) {
-                    $role = new RoleEntity();
-                    $role->setId($result->roleid);
-                    $role->setRole($result->role);
-                    $user->addRole($role);                    
-                }
+
                 return $user;
             } else {
-                throw new NotFoundException('No user were found with this credentials, using password');
+                throw new NotFoundException('No user were found with this credentials');
             }
         } else {
             throw new IncorrectSqlExpressionException('Something went wrong while processing query : ' . $sqlQuery);
         }
-        
+    }
+    public function useContext($conn, $query, $params = [], $usePrepared = true){
+        $context = new Context(new UsePreparedRequest());
+        if (!$usePrepared) {
+            $context->setStrategy(new UseRequest());
+        }
+        return $context->useStrategy($conn, $query, $params);
     }
 }

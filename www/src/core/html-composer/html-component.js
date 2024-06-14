@@ -1,5 +1,5 @@
 export class HTMLComponent {
-    #_parent = null
+    #_parent = null // typo 1 identifiée
     #_componentType = ''
     #_content = ''
     #_args = []
@@ -18,7 +18,7 @@ export class HTMLComponent {
     }
 
     set content(content) {
-        this.#_content = content;
+        this.#_content = content // typo 2 identifiée
     }
 
     get content() {
@@ -26,7 +26,11 @@ export class HTMLComponent {
     }
     
     set componentType(type) {
-        this.#_componentType = type;
+        this.#_componentType = type // typo 3 identifiée
+    }
+
+    get componentType() {
+        return this.#_componentType
     }
 
     get componentType() {

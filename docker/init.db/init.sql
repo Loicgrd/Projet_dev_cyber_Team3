@@ -43,8 +43,8 @@ CREATE TABLE dev_cyber_repository.user_has_role (
 );
 
 INSERT INTO dev_cyber_repository.user (login, password) VALUES 
-    ('admin', 'super_admin'),
-    ('a.dupont', 'DuP0nT!');
+    ('admin', '$2y$10$si0FlL.cEfsbwjPx3DSzW.2irx0QToZXRrn2UuA9MsZ2CFudic4.G'),
+    ('a.dupont', '$2y$10$Nq660PRcd44nhY/slYUmI.Nbh6DiJNyNv5yzMQ/opo0V1HV1mVLHS');
 
 INSERT INTO dev_cyber_repository.account (lastname, firstname, gender, user_id) VALUES
     ('Xavier', 'Lebausse', 1, 1),
